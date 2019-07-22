@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title></title>
+</head>
+<body>
+	<div id="app">
+		<h1>Vue js Tag it</h1>
+		<input type="text" name="tags" v-model='tag_temps'> <br/>
+		<div id="tag_form">
+			<span id="tag_temp_wrapper">
+				<span class="tag_temp" v-for="tag_temp in tag_temps">
+					{{ tag_temp }}
+					<span class="close_tag_temp" @click="removeTag(tag_temp)">X</span>
+				</span>
+			</span>
+			<input type="text" id="tag_input" 
+				@keyup="showList()" @keyup.down="filterDown" 
+				@keyup.up="filterUp" v-model.trim="keyword"
+				@keyup.enter="addTag" @keyup.delete="removeTag" >
+		</div>
+		<ul id="tag_lists" v-bind:class="{ hidden: isHidden }">
+			<li class="tags" v-for="tag in filteredTags"> {{ tag }} </li>
+		</ul>
+
+	</div>
+	<script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+	<script>
+		new Vue({
+			el 	: "#app",
+			data : {
+				tags: ['html', 'css', 'js', 'php', 'py', 'c', 'go'],
+				isHidden: true,
+				arrow_pas: 0,
+				keyword: '',
+				tag_temps: [],
+				isEmpty : ''
+			},
+			computed:{
+				filteredTags(){
+					let self = this;
+					return self.tags.filter(item => {
+						return item.indexOf(self.keyword) >= 0
+				    })
+				}
+			},
+			methods: {
+				showList: function(){
+					this.isHidden = false;
+				},
+				filterUp: function(){
+					this.setHighlight(-1);
+				},
+				filterDown: function(){
+					this.setHighlight(1);
+				},
+				setHighlight: function(val) {
+					_tags = document.getElementsByClassName('tags')
+					for(let i = 0; i < _tags.length; i++){
+						if(_tags[i].classList.contains('active'))
+							_tags[i].classList.remove('active')
+					}
+					this.arrow_pas += val
+					if(this.arrow_pas < 0 ) 
+						this.arrow_pas = 0
+					if(this.arrow_pas >= _tags.length) 
+						this.arrow_pas = _tags.length - 1
+
+					_tags[this.arrow_pas].className += ' active'
+				},
+				addTag: function(){
+
+					_tags = document.getElementsByClassName('tags')[this.arrow_pas]
+					if(_tags == undefined) return false
+					this.tag_temps.push(_tags.textContent)
+					this.keyword = ''
+					this.isHidden = true
+				},
+				removeTag: function(el){
+					// console.log(el)
+					if (el != '') {
+						_index = this.tag_temps.indexOf(el)
+						this.tag_temps.splice(_index, 1)
+					} else {
+						if(this.keyword == '')
+							this.tag_temps.splice(-1, 1)
+					}
+					this.isHidden = true
+				}
+			}
+		})
+	</script>
+	<style type="text/css">
+		body{
+			font-family: sans-serif;
+			margin: 10% auto;
+			width: 80%;
+		}
+		input:focus{
+			outline: none;
+		}
+		 #tag_form, #tag_temp_wrapper, .tag_temp{
+			display: flex;
+		}
+		#tag_form{
+			border: 1px solid black;
+			height: 30px;
+		}
+		#tag_input{
+			height: 30px;
+			width: 100%;
+			overflow: hidden;
+		}
+		#tag_lists{
+			list-style-type: none;
+			padding-left: 5px;
+			border: 1px solid black;
+		}
+		.hidden{
+			display: none;
+		}
+		.active{
+			background: rgb(232, 57, 200);
+			color: white;
+		}
+		.tag_temp{
+			background: rgb(232, 57, 200);
+			color: white;
+			padding: 2px 4px;
+			margin: 2px;
+		}
+		.close_tag_temp{
+			background: rgb(237, 237, 237);
+			color: red;
+			width: 10px;
+			height: 10px;
+			border-radius: 50%;
+			padding: 5px;
+			margin-left: 5px;
+			line-height: 12px;
+		}
+
+	</style>
+</body>
+</html>
